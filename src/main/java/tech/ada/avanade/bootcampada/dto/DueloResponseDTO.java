@@ -5,7 +5,8 @@ public class DueloResponseDTO {
     private String nomeDuelante;
     private PersonagemResponseDTO duelante;
     private PersonagemResponseDTO oponente;
-    private PersonagemResponseDTO jogadorAtual;
+    private PersonagemHistoricoDTO jogadorAtual;
+    private PersonagemHistoricoDTO iniciante;
     private Integer pontosVidaDuelante;
     private Integer pontosVidaOponente;
 
@@ -57,11 +58,19 @@ public class DueloResponseDTO {
         this.pontosVidaOponente = pontosVidaOponente;
     }
 
-    public PersonagemResponseDTO getJogadorAtual() {
+    public PersonagemHistoricoDTO getJogadorAtual() {
         return jogadorAtual;
     }
 
-    public void setJogadorAtual(PersonagemResponseDTO jogadorAtual) {
+    public void setJogadorAtual(PersonagemHistoricoDTO jogadorAtual) {
         this.jogadorAtual = jogadorAtual;
+    }
+
+    public PersonagemHistoricoDTO getIniciante() {
+        return iniciante;
+    }
+
+    public void setIniciante(PersonagemHistoricoDTO iniciante) {
+        this.iniciante = iniciante;
     }
 }

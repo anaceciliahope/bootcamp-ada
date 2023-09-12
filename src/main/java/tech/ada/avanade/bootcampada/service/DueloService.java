@@ -25,7 +25,11 @@ public class DueloService {
         Personagem duelante = personagemService.recuperarPersonagem(duelo.getDuelante().getId());
         duelo.setDuelante(duelante);
         if (duelo.getOponente() != null) {
-            Personagem oponente = personagemService.recuperarPersonagem(duelo.getOponente().getId());
+            Personagem oponente =
+                    personagemService.recuperarPersonagem(duelo.getOponente().getId());
+            if (!oponente.getTipoPersonagem().equals(TipoPersonagem.MONSTRO)) {
+                throw new AvanadeException("O personagem [" + oponente.getId() +  "] não é um Monstro");
+            }
             duelo.setOponente(oponente);
         } else {
             duelo.setOponente(recuperarOponenteAleatorio());
@@ -33,6 +37,7 @@ public class DueloService {
         duelo.setPontosVidaDuelante(duelo.getDuelante().getPontosVida());
         duelo.setPontosVidaOponente(duelo.getOponente().getPontosVida());
         duelo.setJogadorAtual(sortearJogadorAtual(duelo));
+        duelo.setIniciante(duelo.getJogadorAtual());
         duelo = repository.save(duelo);
         return duelo;
     }
@@ -60,7 +65,7 @@ public class DueloService {
     }
 
     public Duelo atacar(Long id) {
-        Duelo duelo = recuperarDuelo(id);
+        Duelo duelo = recuperarDueloAtivo(id);
         validarAtaque(duelo.getTurnos());
         Turno turno = new Turno();
         turno.setNumeroTurno(recuperarNumeroTurno(duelo.getTurnos()));
@@ -82,7 +87,7 @@ public class DueloService {
     }
 
     public Duelo defender(Long id) {
-        Duelo duelo = recuperarDuelo(id);
+        Duelo duelo = recuperarDueloAtivo(id);
         Turno turno = recuperarUltimoTurno(duelo.getTurnos());
         validarDefesa(turno);
         Defesa defesa = turno.getDefesa();
@@ -92,7 +97,7 @@ public class DueloService {
     }
 
     public Duelo calcularDano(Long id) {
-        Duelo duelo = recuperarDuelo(id);
+        Duelo duelo = recuperarDueloAtivo(id);
         Turno turno = recuperarUltimoTurno(duelo.getTurnos());
         validarTurno(turno);
         Integer ataque = turno.getAtaque().calcularDano();
@@ -107,10 +112,12 @@ public class DueloService {
             if (turno.getDefesa().getPersonagem().equals(duelo.getDuelante())) {
                 Integer pontosAtuais = duelo.getPontosVidaDuelante() - dano;
                 duelo.setPontosVidaDuelante(pontosAtuais);
+                excluirJogadorAtual(duelo, pontosAtuais);
             } else {
                 //se o personagem que defendeu nao for duelante, tiro pontos do oponente
                 Integer pontosAtuais = duelo.getPontosVidaOponente() - dano;
                 duelo.setPontosVidaOponente(pontosAtuais);
+                excluirJogadorAtual(duelo, pontosAtuais);
             }
         }
         turno.setDano(dano);
@@ -190,12 +197,21 @@ public class DueloService {
         }
         return turno;
     }
-
     public Duelo recuperarDuelo(Long id) {
-        Duelo duelo = this.repository.findById(id).orElseThrow(
+        return this.repository.findById(id).orElseThrow(
                 () -> new NoResultException("Duelo [" + id + "] não cadastrado"));
+    }
+    private Duelo recuperarDueloAtivo(Long id) {
+        Duelo duelo = recuperarDuelo(id);
         validarDueloAtivo(duelo);
         return duelo;
     }
+
+    private void excluirJogadorAtual(Duelo duelo, Integer pontosAtuais) {
+        if (pontosAtuais <= 0) {
+            duelo.setJogadorAtual(null);
+        }
+    }
+
 
 }

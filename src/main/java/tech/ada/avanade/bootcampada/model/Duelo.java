@@ -17,6 +17,8 @@ public class Duelo {
     private Personagem oponente;
     @ManyToOne
     private Personagem jogadorAtual;
+    @ManyToOne
+    private Personagem iniciante;
     private Integer pontosVidaDuelante;
     private Integer pontosVidaOponente;
 
@@ -85,5 +87,13 @@ public class Duelo {
 
     public void setJogadorAtual(Personagem jogadorAtual) {
         this.jogadorAtual = jogadorAtual;
+    }
+
+    public Personagem getIniciante() {
+        return iniciante;
+    }
+
+    public void setIniciante(Personagem iniciante) {
+        this.iniciante = iniciante;
     }
 }
