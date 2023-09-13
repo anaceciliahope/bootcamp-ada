@@ -38,6 +38,7 @@ public class DueloService {
         duelo.setPontosVidaOponente(duelo.getOponente().getPontosVida());
         duelo.setJogadorAtual(sortearJogadorAtual(duelo));
         duelo.setIniciante(duelo.getJogadorAtual());
+        duelo.setSituacaoDuelo(SituacaoDuelo.ATIVO);
         duelo = repository.save(duelo);
         return duelo;
     }
@@ -112,12 +113,12 @@ public class DueloService {
             if (turno.getDefesa().getPersonagem().equals(duelo.getDuelante())) {
                 Integer pontosAtuais = duelo.getPontosVidaDuelante() - dano;
                 duelo.setPontosVidaDuelante(pontosAtuais);
-                excluirJogadorAtual(duelo, pontosAtuais);
+                definirFinalDuelo(duelo, pontosAtuais);
             } else {
                 //se o personagem que defendeu nao for duelante, tiro pontos do oponente
                 Integer pontosAtuais = duelo.getPontosVidaOponente() - dano;
                 duelo.setPontosVidaOponente(pontosAtuais);
-                excluirJogadorAtual(duelo, pontosAtuais);
+                definirFinalDuelo(duelo, pontosAtuais);
             }
         }
         turno.setDano(dano);
@@ -207,9 +208,10 @@ public class DueloService {
         return duelo;
     }
 
-    private void excluirJogadorAtual(Duelo duelo, Integer pontosAtuais) {
+    private void definirFinalDuelo(Duelo duelo, Integer pontosAtuais) {
         if (pontosAtuais <= 0) {
             duelo.setJogadorAtual(null);
+            duelo.setSituacaoDuelo(SituacaoDuelo.FINALIZADO);
         }
     }
 

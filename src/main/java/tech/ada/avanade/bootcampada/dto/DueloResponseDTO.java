@@ -1,5 +1,7 @@
 package tech.ada.avanade.bootcampada.dto;
 
+import tech.ada.avanade.bootcampada.model.SituacaoDuelo;
+
 public class DueloResponseDTO {
     private Long id;
     private String nomeDuelante;
@@ -9,6 +11,7 @@ public class DueloResponseDTO {
     private PersonagemHistoricoDTO iniciante;
     private Integer pontosVidaDuelante;
     private Integer pontosVidaOponente;
+    private SituacaoDuelo situacaoDuelo;
 
     public Long getId() {
         return id;
@@ -72,5 +75,13 @@ public class DueloResponseDTO {
 
     public void setIniciante(PersonagemHistoricoDTO iniciante) {
         this.iniciante = iniciante;
+    }
+
+    public SituacaoDuelo getSituacaoDuelo() {
+        return situacaoDuelo;
+    }
+
+    public void setSituacaoDuelo(SituacaoDuelo situacaoDuelo) {
+        this.situacaoDuelo = situacaoDuelo;
     }
 }

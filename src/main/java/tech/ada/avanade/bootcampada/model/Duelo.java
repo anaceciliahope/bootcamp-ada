@@ -21,6 +21,8 @@ public class Duelo {
     private Personagem iniciante;
     private Integer pontosVidaDuelante;
     private Integer pontosVidaOponente;
+    @Enumerated(EnumType.STRING)
+    private SituacaoDuelo situacaoDuelo;
 
     @OneToMany(mappedBy = "duelo", cascade = CascadeType.ALL)
     private List<Turno> turnos;
@@ -95,5 +97,13 @@ public class Duelo {
 
     public void setIniciante(Personagem iniciante) {
         this.iniciante = iniciante;
+    }
+
+    public SituacaoDuelo getSituacaoDuelo() {
+        return situacaoDuelo;
+    }
+
+    public void setSituacaoDuelo(SituacaoDuelo situacaoDuelo) {
+        this.situacaoDuelo = situacaoDuelo;
     }
 }
