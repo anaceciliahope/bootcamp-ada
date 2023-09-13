@@ -1,25 +1,25 @@
 package tech.ada.avanade.bootcampada.service;
 
 import jakarta.persistence.NoResultException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech.ada.avanade.bootcampada.exception.AvanadeException;
 import tech.ada.avanade.bootcampada.model.*;
 import tech.ada.avanade.bootcampada.repository.DueloRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Service
 public class DueloService {
 
-    @Autowired
-    private DueloRepository repository;
-    @Autowired
-    private Random random;
-    @Autowired
-    private PersonagemService personagemService;
+    private final DueloRepository repository;
+    private final DadoService dadoService;
+    private final PersonagemService personagemService;
+
+    public DueloService(DueloRepository repository, DadoService dadoService, PersonagemService personagemService) {
+        this.repository = repository;
+        this.dadoService = dadoService;
+        this.personagemService = personagemService;
+    }
 
     public Duelo iniciarDuelo(Duelo duelo) {
         Personagem duelante = personagemService.recuperarPersonagem(duelo.getDuelante().getId());
@@ -45,11 +45,11 @@ public class DueloService {
     private Personagem sortearJogadorAtual(Duelo duelo) {
         int min = 1;
         int max = 20;
-        int numeroSorteadoDuelante = random.ints(min, max).findFirst().orElseThrow();
-        int numeroSorteadoOponente = random.ints(min, max).findFirst().orElseThrow();
+        int numeroSorteadoDuelante = dadoService.sortearNumero(min, max);
+        int numeroSorteadoOponente = dadoService.sortearNumero(min, max);
         while (numeroSorteadoDuelante == numeroSorteadoOponente) {
-            numeroSorteadoDuelante = random.ints(min, max).findFirst().orElseThrow();
-            numeroSorteadoOponente = random.ints(min, max).findFirst().orElseThrow();
+            numeroSorteadoDuelante = dadoService.sortearNumero(min, max);
+            numeroSorteadoOponente = dadoService.sortearNumero(min, max);
         }
         return numeroSorteadoOponente > numeroSorteadoDuelante ? duelo.getOponente() : duelo.getDuelante();
     }
@@ -57,7 +57,7 @@ public class DueloService {
     private Personagem recuperarOponenteAleatorio() {
         List<Long> idMonstros = personagemService.reuperarIdMontros();
         if (!idMonstros.isEmpty()) {
-            int sorteado = random.ints( 0, idMonstros.size()).findFirst().orElseThrow();
+            int sorteado = dadoService.sortearNumero(0, idMonstros.size());
             return personagemService.recuperarPersonagem(idMonstros.get(sorteado));
         } else {
             throw new NoResultException("Não existe monstro cadastrado");
@@ -163,7 +163,7 @@ public class DueloService {
     private Integer sortearNumero(int min, int max, int quantidadeDados) {
         int numeroSorteado = 0;
         for (int i = 0; i < quantidadeDados; i++) {
-            numeroSorteado += random.ints(min, max).findFirst().orElseThrow();
+            numeroSorteado += dadoService.sortearNumero(min, max);
         }
         return numeroSorteado;
     }
