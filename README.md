@@ -2,9 +2,8 @@
 Batalha épica estilo Advanced Dangeous &amp; Dragons (AD&amp;D)
 
 ### Configuração de ambiente
-Instalar banco de dados postgres
-username = postgres
-password = admin
+Instalar banco de dados postgres, usuário: ```postgres``` e senha ```admin```
+
 
 ### Documentacao da API
 [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
