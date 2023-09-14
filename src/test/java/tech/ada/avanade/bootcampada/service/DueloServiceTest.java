@@ -10,13 +10,13 @@ import static org.mockito.ArgumentMatchers.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 import tech.ada.avanade.bootcampada.exception.AvanadeException;
-import tech.ada.avanade.bootcampada.model.Duelo;
-import tech.ada.avanade.bootcampada.model.Personagem;
-import tech.ada.avanade.bootcampada.model.TipoPersonagem;
+import tech.ada.avanade.bootcampada.model.*;
 import tech.ada.avanade.bootcampada.repository.DueloRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -32,6 +32,7 @@ class DueloServiceTest {
     private PersonagemService personagemService;
     @Mock
     private DadoService dadoService;
+
 
     @Test
     void iniciarDueloComOponenteInformadoSucesso() {
@@ -90,17 +91,38 @@ class DueloServiceTest {
         assertEquals("O personagem [2] não é um Monstro", exception.getMessage());
     }
 
+
     private Duelo getDuelo() {
         Duelo duelo = new Duelo();
         duelo.setId(1L);
         duelo.setNomeDuelante("Teste duelo sucesso");
+        duelo.setPontosVidaOponente(10);
+        duelo.setPontosVidaDuelante(10);
+        duelo.setTurnos(new ArrayList<>());
+        duelo.getTurnos().add(getTurno());
         Personagem duelante = new Personagem();
         duelante.setId(1L);
         duelo.setDuelante(duelante);
         Personagem oponente = new Personagem();
         oponente.setId(2L);
         duelo.setOponente(oponente);
+        duelo.setJogadorAtual(duelante);
         return duelo;
+    }
+
+    private Turno getTurno() {
+        Turno turno = new Turno();
+        turno.setNumeroTurno(1);
+
+        Ataque ataque = new Ataque();
+        ataque.setPersonagem(getPersonagemDuelante());
+        ataque.setNumeroSorteadoDado(10);
+        turno.setAtaque(ataque);
+
+        Defesa defesa = new Defesa();
+        defesa.setPersonagem(getPersonagemDuelante());
+        turno.setDefesa(defesa);
+        return turno;
     }
 
     private Personagem getPersonagemDuelante() {
@@ -133,10 +155,48 @@ class DueloServiceTest {
 
     @Test
     void atacar() {
+        Duelo duelo = getDuelo();
+        Optional<Duelo> dueloOpional = Optional.of(duelo);
+        when(repository.findById(anyLong())).thenReturn(dueloOpional);
+        when(repository.save(any())).thenReturn(duelo);
+        Duelo response = service.atacar(anyLong());
+        assertNotNull(response);
+        verify(repository, times(1)).findById(anyLong());
+        verify(repository, times(1)).save(any());
     }
 
     @Test
     void defender() {
+        Duelo duelo = getDuelo();
+        Optional<Duelo> dueloOpional = Optional.of(duelo);
+        when(repository.findById(anyLong())).thenReturn(dueloOpional);
+        when(repository.save(any())).thenReturn(duelo);
+        Duelo response = service.defender(anyLong());
+        assertNotNull(response);
+        verify(repository, times(1)).findById(anyLong());
+        verify(repository, times(1)).save(any());
+    }
+
+    @Test
+    void defenderDefenderSemTurnoDefinido() {
+        Duelo duelo = getDuelo();
+        duelo.setTurnos(new ArrayList<>());
+        Optional<Duelo> dueloOpional = Optional.of(duelo);
+        when(repository.findById(anyLong())).thenReturn(dueloOpional);
+        AvanadeException exception = assertThrows(AvanadeException.class, () -> service.defender(anyLong()));
+        assertNotNull(exception);
+        assertEquals("Nenhum Ataque não foi efetuado, aguarde o primeiro ataque, para efetuar a defesa", exception.getMessage());
+    }
+
+    @Test
+    void defenderDefenderSemAtaqueEfetuado() {
+        Duelo duelo = getDuelo();
+        duelo.getTurnos().get(0).getDefesa().setNumeroSorteadoDado(22);
+        Optional<Duelo> dueloOpional = Optional.of(duelo);
+        when(repository.findById(anyLong())).thenReturn(dueloOpional);
+        AvanadeException exception = assertThrows(AvanadeException.class, () -> service.defender(anyLong()));
+        assertNotNull(exception);
+        assertEquals("Você não foi atacado, aguarde o ataque para efetuar a defesa!", exception.getMessage());
     }
 
     @Test

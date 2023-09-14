@@ -83,7 +83,7 @@ public class DueloService {
         duelo.getTurnos().add(turno);
 
         alternarJogador(duelo);
-        repository.save(duelo);
+        duelo = repository.save(duelo);
         return duelo;
     }
 
@@ -199,8 +199,7 @@ public class DueloService {
         return turno;
     }
     public Duelo recuperarDuelo(Long id) {
-        return this.repository.findById(id).orElseThrow(
-                () -> new NoResultException("Duelo [" + id + "] não cadastrado"));
+        return this.repository.findById(id).orElseThrow(() -> new NoResultException("Duelo [" + id + "] não cadastrado"));
     }
     private Duelo recuperarDueloAtivo(Long id) {
         Duelo duelo = recuperarDuelo(id);
